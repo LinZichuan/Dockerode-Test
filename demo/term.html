@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Socket2docker test</title>
+    <script src="jquery.min.js"></script>
+    <script src="js/socket.io-1.3.5.js"></script>
+    <script src="term.js/src/term.js"></script>
+    <script src="js/index.js"></script>
+</head>
+
+<body>
+
+<style>
+  html {
+    background: #555;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font: 20px/1.5 sans-serif;
+  }
+
+/*
+  .terminal {
+    float: left;
+    border: #000 solid 5px;
+    font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
+    font-size: 11px;
+    color: #f0f0f0;
+    background: #000;
+  }
+
+  .terminal-cursor {
+    color: #000;
+    background: #f0f0f0;
+  }
+*/
+</style>
+
+<script>
+    ;(function() {
+      window.onload = function() {
+        socket.on('connect', function() {
+          var term = new Terminal({
+            cols: 80,
+            rows: 24,
+            useStyle: true,
+            screenKeys: true,
+            cursorBlink: false
+          });
+
+          term.on('data', function(data) {
+            socket.emit('keyboard-input', data);
+          });
+
+          term.on('title', function(title) {
+            document.title = title;
+          });
+
+          term.open(document.body);
+
+          term.write('\x1b[31mWelcome to term.js!\x1b[m\r\n');
+
+          socket.on('docker-output', function(data) {
+            term.write(data);
+          });
+
+          socket.on('disconnect', function() {
+            term.destroy();
+          });
+        });
+      };
+    }).call(this);
+</script>
+</body>
+
+</html>
